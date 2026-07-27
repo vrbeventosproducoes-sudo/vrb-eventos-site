@@ -1,0 +1,981 @@
+:root{
+    --black: #111111;
+    --gold: #C8A24A;
+    --white: #FFFFFF;
+    --gray: #333333;
+    /*
+      Ponto de troca da foto real: substitua a URL abaixo pela fotografia
+      de um evento real da VRB (idealmente ao entardecer, barraca montada,
+      mesas postas). Até lá, um gradiente fotográfico simula a composição
+      e o enquadramento do overlay.
+    */
+    --hero-photo: url('/images/hero-photo.jpg');
+  }
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html{ scroll-behavior: smooth; }
+  body{
+    font-family: 'Montserrat', sans-serif;
+    color: var(--gray);
+    background: var(--black);
+    -webkit-font-smoothing: antialiased;
+  }
+  a{ text-decoration:none; color:inherit; }
+  ul{ list-style:none; }
+  .wrap{ max-width: 1200px; margin:0 auto; padding: 0 32px; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    background: var(--gold); color: var(--black);
+    padding: 19px 38px; font-size: 0.85rem; font-weight:600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border: 1px solid var(--gold);
+    transition: background .4s cubic-bezier(.4,0,.2,1), color .4s cubic-bezier(.4,0,.2,1), transform .35s cubic-bezier(.4,0,.2,1), box-shadow .35s ease;
+  }
+  .btn:hover{ background: transparent; color: var(--gold); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.28); }
+  .btn:active{ transform: translateY(0); }
+  .btn-outline{ background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,0.45); }
+  .btn-outline:hover{ background: rgba(255,255,255,0.08); color: var(--white); border-color: var(--white); transform: translateY(-2px); }
+
+  /* NAV */
+  nav{
+    position: fixed; top:0; left:0; right:0; z-index: 100;
+    padding: 30px 0;
+    transition: background .45s cubic-bezier(.4,0,.2,1), padding .45s cubic-bezier(.4,0,.2,1), box-shadow .45s ease, backdrop-filter .45s ease;
+  }
+  nav.scrolled{
+    background: rgba(15,14,12,0.86);
+    backdrop-filter: blur(14px) saturate(140%);
+    padding: 16px 0;
+    box-shadow: 0 1px 0 rgba(200,162,74,0.18), 0 12px 30px rgba(0,0,0,0.25);
+  }
+  nav .wrap{ display:flex; align-items:center; justify-content:space-between; }
+  .logo{
+    font-family:'Playfair Display', serif; font-weight:700; color: var(--white);
+    letter-spacing:0.02em; font-size: 1.85rem;
+    transition: font-size .45s cubic-bezier(.4,0,.2,1);
+  }
+  nav.scrolled .logo{ font-size: 1.55rem; }
+  .logo span{ color: var(--gold); }
+
+  .nav-links{ display:flex; align-items:center; gap: 40px; }
+  .nav-links a{
+    color: var(--white); font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase;
+    opacity: 0.85; transition: opacity .25s ease, color .25s ease; position:relative; padding: 4px 0;
+  }
+  .nav-links a::after{
+    content:''; position:absolute; left:0; bottom:-2px; width:0; height:1px; background: var(--gold);
+    transition: width .3s cubic-bezier(.4,0,.2,1);
+  }
+  .nav-links a:hover{ opacity: 1; color: var(--gold); }
+  .nav-links a:hover::after{ width:100%; }
+  .nav-cta{ font-size: 0.75rem; padding: 14px 28px; }
+  .menu-toggle{ display:none; background:none; border:none; color: var(--white); font-size:1.6rem; cursor:pointer; }
+
+  /* HERO
+     Estrutura em flex-column real (não mais elementos "flutuando" com position:absolute
+     competindo por espaço). Cada camada decorativa tem z-index explícito, e o conteúdo
+     e o indicador de rolagem são itens de fluxo normal — nunca podem se sobrepor. */
+  .hero{
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh; /* evita que a Barra de Confiança "espie" no mobile por causa da barra de endereço */
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    padding: clamp(104px, 15vh, 148px) 0 clamp(32px, 5vh, 48px);
+  }
+  .hero-photo{
+    position:absolute; inset: -2%; /* leve folga apenas para o efeito de profundidade (parallax), sem necessidade de blur */
+    background-image: var(--hero-photo);
+    background-size: cover; background-position: center;
+    will-change: transform;
+    transition: transform .2s linear;
+    z-index: 0;
+  }
+  /* overlay preto entre 55% e 65% de opacidade — garante leitura do texto com a foto totalmente nítida.
+     Gradiente mantém as extremidades (topo/rodapé) um pouco mais escuras, tipo vinheta. */
+  .hero-overlay{
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(10,9,8,0.62) 0%, rgba(10,9,8,0.57) 42%, rgba(10,9,8,0.60) 62%, rgba(8,7,6,0.72) 100%);
+    z-index: 1;
+  }
+  /* linhas diagonais discretas sugerindo tecido/lona — bem sutis */
+  .hero-texture{
+    position:absolute; inset:0; pointer-events:none;
+    background-image: repeating-linear-gradient(115deg, rgba(200,162,74,0.028) 0 2px, transparent 2px 110px);
+    z-index: 1;
+  }
+  .lights{ position:absolute; inset:0; pointer-events:none; z-index: 1; }
+  .lights span{
+    position:absolute; width:3px; height:3px; border-radius:50%;
+    background: var(--gold); opacity:0.32;
+    box-shadow: 0 0 9px 2px rgba(200,162,74,0.4);
+    animation: drift 18s ease-in-out infinite;
+  }
+  @keyframes drift{
+    0%,100%{ transform: translateY(0px); opacity:0.22; }
+    50%{ transform: translateY(-9px); opacity:0.5; }
+  }
+
+  .hero-content{
+    max-width: 820px; margin: auto auto; text-align:center; position:relative; z-index:2;
+    transition: transform .2s linear;
+    width: 100%;
+    padding: 0 32px;
+  }
+  .eyebrow{
+    font-size: 0.76rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; display:inline-block; margin-bottom: clamp(22px, 3.4vh, 34px);
+  }
+  .hero h1{
+    font-family:'Playfair Display', serif; font-weight:600;
+    color: var(--white); font-size: clamp(2.5rem, 5.2vw, 4.4rem);
+    line-height: 1.18; margin-bottom: clamp(24px, 4vh, 38px); letter-spacing: -0.01em;
+  }
+  .hero h1 em{ font-style: italic; color: var(--gold); font-weight:500; }
+  .hero p.lead{
+    font-size: 1.14rem; line-height:1.8; color: rgba(255,255,255,0.8);
+    max-width: 600px; margin: 0 auto clamp(26px, 4.2vh, 42px);
+  }
+  /* apenas texto, sem retângulo — mais discreto que um selo com borda */
+  .hero-badge{
+    display:inline-flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center;
+    font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase;
+    color: rgba(255,255,255,0.68);
+    margin: 0 auto clamp(30px, 5vh, 52px);
+  }
+  .hero-badge .check{ color: var(--gold); font-size: 0.8rem; }
+  .hero-ctas{ display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom: 0; position:relative; z-index:3; }
+  .hero-ctas .btn{ min-width: 300px; } /* mesma largura para os dois botões, texto centralizado */
+
+  .scroll-cue{
+    position:relative; z-index:2;
+    flex-shrink: 0;
+    margin: clamp(40px, 6vh, 72px) auto 0; /* folga fluida e garantida acima do indicador — nunca encosta nos botões */
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    color: rgba(255,255,255,0.5); font-size: 0.68rem; letter-spacing:0.1em; text-transform:uppercase;
+  }
+  .scroll-cue .line{ width:1px; height:34px; background: linear-gradient(180deg, var(--gold), transparent); animation: pulse 2.8s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:0.25; } 50%{ opacity:0.85; } }
+
+  /* BARRA DE CONFIANÇA
+     Continua a paleta preto/dourado do Hero, com um tom levemente mais sólido/plano
+     (sem fotografia, sem textura) para sinalizar que é um novo bloco — sem quebrar
+     a unidade visual. Uma linha dourada finíssima marca a transição. */
+  .trust{
+    background: linear-gradient(180deg, #0d0c0b 0%, #131210 100%);
+    border-top: 1px solid rgba(200,162,74,0.16);
+    padding: 100px 0 92px;
+    position: relative;
+  }
+  .trust-grid{
+    display:grid; grid-template-columns: repeat(5, 1fr); gap: 26px;
+  }
+  .trust-card{
+    text-align:center; padding: 42px 24px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.015);
+    transition: border-color .45s cubic-bezier(.4,0,.2,1), transform .45s cubic-bezier(.4,0,.2,1), background .45s ease, box-shadow .45s ease;
+    opacity: 0; transform: translateY(22px);
+  }
+  .trust-card.is-visible{ opacity:1; transform: translateY(0); }
+  .trust-card:hover{
+    border-color: rgba(200,162,74,0.55);
+    background: rgba(200,162,74,0.035);
+    transform: translateY(-6px);
+    box-shadow: 0 22px 40px rgba(0,0,0,0.35);
+  }
+  .trust-icon{
+    width: 56px; height: 56px; margin: 0 auto 22px;
+    display:flex; align-items:center; justify-content:center;
+    border: 1px solid rgba(200,162,74,0.35); border-radius: 50%;
+    transition: border-color .45s ease, transform .45s cubic-bezier(.4,0,.2,1);
+  }
+  .trust-card:hover .trust-icon{ border-color: var(--gold); transform: scale(1.06); }
+  .trust-icon svg{
+    width: 24px; height: 24px;
+    stroke: var(--gold); fill: none;
+    stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .trust-card h3{
+    font-family:'Montserrat', sans-serif; font-weight:600; color: var(--white);
+    font-size: 1rem; letter-spacing: 0.01em; margin-bottom: 12px;
+  }
+  .trust-card p{
+    font-size: 0.86rem; line-height: 1.65; color: rgba(255,255,255,0.56);
+  }
+
+  .trust-statement{
+    max-width: 680px; margin: 84px auto 0; text-align:center;
+    position: relative;
+    opacity: 0; transform: translateY(18px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .trust-statement.is-visible{ opacity:1; transform: translateY(0); }
+  .trust-statement .rule{
+    width: 46px; height:1px; background: var(--gold); margin: 0 auto 26px;
+  }
+  .trust-statement p{
+    font-family:'Playfair Display', serif; font-style: italic; font-weight: 400;
+    color: rgba(255,255,255,0.82); font-size: clamp(1.1rem, 2vw, 1.35rem); line-height: 1.6;
+  }
+
+  /* =========================================================
+     GALERIA (Etapa 2)
+     Continua a paleta preto/dourado do Hero/Trust Bar — fundo escuro plano,
+     para que o botão secundário (mesmo componente do Hero) permaneça legível
+     sem precisar de nenhum estilo novo.
+     ========================================================= */
+  .gallery{
+    background: linear-gradient(180deg, #100f0d 0%, #0b0a09 100%);
+    border-top: 1px solid rgba(200,162,74,0.14);
+    padding: 112px 0 100px;
+  }
+  .gallery-head, .products-head{ max-width: 620px; margin: 0 auto 68px; text-align:center; }
+  .gallery-head .eyebrow, .products-head .eyebrow{
+    font-size: 0.76rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; display:inline-block; margin-bottom: 20px;
+  }
+  .gallery-head h2, .products-head h2{
+    font-family:'Playfair Display', serif; font-weight:600; color: var(--white);
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem); line-height:1.22; margin-bottom: 20px;
+  }
+  .gallery-head h2 em, .products-head h2 em{ font-style: italic; color: var(--gold); font-weight:500; }
+  .gallery-head p, .products-head p{
+    font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.68);
+  }
+
+  .gallery-grid{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+  }
+
+  .gallery-card{
+    position: relative; display:block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: #131110;
+    opacity: 0; transform: translateY(26px);
+    transition: opacity .8s ease, transform .8s ease,
+                border-color .4s ease, box-shadow .4s ease;
+  }
+  .gallery-card.is-visible{ opacity:1; transform: translateY(0); }
+  .gallery-card:hover, .gallery-card:focus-visible{
+    border-color: rgba(200,162,74,0.5);
+    box-shadow: 0 24px 46px rgba(0,0,0,0.4);
+  }
+
+  .gallery-img{
+    position:absolute; inset:0;
+    width:100%; height:100%; object-fit: cover;
+    transition: transform .6s cubic-bezier(.4,0,.2,1);
+  }
+  .gallery-card:hover .gallery-img,
+  .gallery-card:focus-visible .gallery-img{
+    transform: scale(1.05);
+  }
+
+  .gallery-overlay{
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(10,9,8,0.05) 40%, rgba(8,7,6,0.72) 100%);
+    opacity: 0.55;
+    transition: opacity .5s ease;
+  }
+  .gallery-card:hover .gallery-overlay,
+  .gallery-card:focus-visible .gallery-overlay{
+    opacity: 0.82;
+  }
+
+  .gallery-label{
+    position:absolute; left: 28px; bottom: 26px; z-index: 2;
+    font-family:'Montserrat', sans-serif; font-weight:600;
+    font-size: 0.92rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--white);
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .45s ease, transform .45s ease;
+  }
+  .gallery-card:hover .gallery-label,
+  .gallery-card:focus-visible .gallery-label{
+    opacity: 1; transform: translateY(0);
+  }
+  .gallery-label::after{
+    content:''; display:block; width: 28px; height:1px; background: var(--gold); margin-top: 10px;
+  }
+
+  .gallery-cta, .products-cta{ text-align:center; margin-top: 60px; }
+
+  /* =========================================================
+     PRODUTOS (Etapa 3)
+     Reaproveita a mesma base visual (fundo, cabeçalho, cta) da Galeria —
+     só o grid e o card são novos, porque aqui o nome/descrição ficam
+     sempre visíveis (não só no hover, como na Galeria).
+     ========================================================= */
+  .products{
+    background: linear-gradient(180deg, #100f0d 0%, #0b0a09 100%);
+    border-top: 1px solid rgba(200,162,74,0.14);
+    padding: 112px 0 100px;
+  }
+
+  .products-grid{
+    display:grid; grid-template-columns: repeat(5, 1fr); gap: 22px;
+  }
+
+  .product-card{
+    position: relative; display:block;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: #131110;
+    opacity: 0; transform: translateY(26px);
+    transition: opacity .8s ease, transform .8s ease,
+                border-color .4s ease, box-shadow .4s ease;
+  }
+  .product-card.is-visible{ opacity:1; transform: translateY(0); }
+  .product-card:hover, .product-card:focus-visible{
+    border-color: rgba(200,162,74,0.5);
+    box-shadow: 0 24px 46px rgba(0,0,0,0.4);
+  }
+
+  .product-img{
+    position:absolute; inset:0;
+    width:100%; height:100%; object-fit: cover;
+    transition: transform .6s cubic-bezier(.4,0,.2,1);
+  }
+  .product-card:hover .product-img,
+  .product-card:focus-visible .product-img{
+    transform: scale(1.05);
+  }
+
+  .product-overlay{
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(10,9,8,0.1) 30%, rgba(8,7,6,0.86) 100%);
+  }
+
+  .product-body{
+    position:absolute; left:0; right:0; bottom:0; z-index:2;
+    padding: 20px 20px 22px;
+  }
+  .product-body h3{
+    font-family:'Montserrat', sans-serif; font-weight:600; color: var(--white);
+    font-size: 0.98rem; letter-spacing: 0.02em; margin-bottom: 6px;
+  }
+  .product-body p{
+    font-size: 0.78rem; line-height: 1.5; color: rgba(255,255,255,0.62);
+  }
+  .product-body .rule{
+    width: 24px; height:1px; background: var(--gold); margin-bottom: 12px;
+  }
+
+  /* =========================================================
+     INSTAGRAM (bloco temporário, no lugar de "Eventos que Atendemos")
+     Todo os valores abaixo são NOVOS — nenhuma linha das seções
+     anteriores (Hero, Navbar, Trust Bar, Galeria, Produtos) foi tocada.
+     Repito aqui, em regras próprias, os mesmos valores de fundo/cabeçalho/cta
+     já usados na Galeria e em Produtos, para manter identidade visual
+     sem alterar as regras existentes.
+     ========================================================= */
+  .instagram{
+    background: linear-gradient(180deg, #100f0d 0%, #0b0a09 100%);
+    border-top: 1px solid rgba(200,162,74,0.14);
+    padding: 112px 0 100px;
+  }
+  .instagram-head{ max-width: 620px; margin: 0 auto 68px; text-align:center; }
+  .instagram-head .eyebrow{
+    font-size: 0.76rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; display:inline-block; margin-bottom: 20px;
+  }
+  .instagram-head h2{
+    font-family:'Playfair Display', serif; font-weight:600; color: var(--white);
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem); line-height:1.22; margin-bottom: 20px;
+  }
+  .instagram-head h2 em{ font-style: italic; color: var(--gold); font-weight:500; }
+  .instagram-head p{
+    font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.68);
+  }
+
+  .instagram-grid{
+    display:grid; grid-template-columns: repeat(6, 1fr); gap: 14px;
+  }
+
+  .instagram-card{
+    position: relative; display:block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: #131110;
+    opacity: 0; transform: translateY(26px);
+    transition: opacity .8s ease, transform .8s ease,
+                border-color .4s ease, box-shadow .4s ease;
+  }
+  .instagram-card.is-visible{ opacity:1; transform: translateY(0); }
+  .instagram-card:hover, .instagram-card:focus-visible{
+    border-color: rgba(200,162,74,0.5);
+    box-shadow: 0 18px 34px rgba(0,0,0,0.4);
+  }
+
+  .instagram-img{
+    position:absolute; inset:0;
+    width:100%; height:100%; object-fit: cover;
+    transition: transform .6s cubic-bezier(.4,0,.2,1);
+  }
+  .instagram-card:hover .instagram-img,
+  .instagram-card:focus-visible .instagram-img{
+    transform: scale(1.05);
+  }
+
+  .instagram-overlay{
+    position:absolute; inset:0;
+    background: rgba(8,7,6,0.34);
+    opacity: 0;
+    display:flex; align-items:center; justify-content:center;
+    transition: opacity .4s ease;
+  }
+  .instagram-card:hover .instagram-overlay,
+  .instagram-card:focus-visible .instagram-overlay{
+    opacity: 1;
+  }
+  .instagram-overlay svg{
+    width: 22px; height: 22px;
+    stroke: var(--gold); fill:none; stroke-width: 1.4;
+    stroke-linecap: round; stroke-linejoin: round;
+    transform: translateY(6px);
+    transition: transform .4s ease;
+  }
+  .instagram-card:hover .instagram-overlay svg,
+  .instagram-card:focus-visible .instagram-overlay svg{
+    transform: translateY(0);
+  }
+
+  .instagram-cta{ text-align:center; margin-top: 60px; }
+
+  /* =========================================================
+     FOOTER
+     Reaproveita variáveis (--black, --gold, --white, --gray), a fonte
+     Playfair/Montserrat já carregadas, a classe .logo (mesma da Navbar)
+     e a classe .btn (mesmo botão principal do Hero) — nada disso é
+     redeclarado. Só o que é estruturalmente novo (grid, listas, ícones
+     de contato/redes sociais) ganha regras próprias.
+     ========================================================= */
+  .site-footer{
+    background: var(--black);
+    border-top: 1px solid rgba(200,162,74,0.16);
+    padding: 96px 0 0;
+  }
+
+  .footer-grid{
+    display:grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 56px;
+    padding-bottom: 76px;
+  }
+
+  .footer-col.is-visible{ opacity:1; transform: translateY(0); }
+  .footer-col{
+    opacity:0; transform: translateY(22px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+
+  /* coluna 1 — marca */
+  .footer-brand .logo{ margin-bottom: 22px; display:inline-block; }
+  .footer-brand p{
+    font-size: 0.9rem; line-height: 1.75; color: rgba(255,255,255,0.6);
+    max-width: 320px; margin-bottom: 28px;
+  }
+  .footer-social{ display:flex; gap: 14px; }
+  .footer-social a{
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.16);
+    display:flex; align-items:center; justify-content:center;
+    transition: border-color .35s ease, transform .35s ease, background .35s ease;
+  }
+  .footer-social a:hover{
+    border-color: var(--gold); background: rgba(200,162,74,0.08); transform: translateY(-3px);
+  }
+  .footer-social svg{
+    width: 17px; height: 17px; stroke: var(--gold); fill:none;
+    stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  /* título compartilhado pelas colunas 2, 3 e 4 */
+  .footer-col h3{
+    font-family:'Montserrat', sans-serif; font-weight:600; color: var(--white);
+    font-size: 0.92rem; letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 26px;
+  }
+
+  /* coluna 2 — navegação */
+  .footer-nav{ display:flex; flex-direction:column; gap: 14px; }
+  .footer-nav a{
+    font-size: 0.9rem; color: rgba(255,255,255,0.68);
+    transition: color .3s ease, padding-left .3s ease;
+    width: fit-content;
+  }
+  .footer-nav a:hover{ color: var(--gold); padding-left: 4px; }
+
+  /* coluna 3 — contato */
+  .footer-contact{ display:flex; flex-direction:column; gap: 16px; }
+  .footer-contact li{ display:flex; align-items:flex-start; gap: 12px; list-style:none; }
+  .footer-contact .ic{
+    width: 17px; height: 17px; flex-shrink:0; margin-top: 2px;
+    stroke: var(--gold); fill:none; stroke-width: 1.4;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .footer-contact span{ font-size: 0.88rem; line-height:1.5; color: rgba(255,255,255,0.68); }
+
+  /* coluna 4 — cta */
+  .footer-cta p{
+    font-size: 0.88rem; line-height: 1.7; color: rgba(255,255,255,0.65);
+    margin-bottom: 26px;
+  }
+
+  /* rodapé inferior */
+  .footer-bottom{
+    border-top: 1px solid rgba(200,162,74,0.16);
+    padding: 26px 0;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap: 12px;
+    font-size: 0.78rem; letter-spacing: 0.02em; color: rgba(255,255,255,0.5);
+  }
+
+  .next-note{
+    background: var(--white); color: var(--gray);
+    text-align:center; padding: 22px 0; font-size: 0.82rem; letter-spacing: 0.03em;
+  }
+  .next-note strong{ color: var(--black); }
+
+  @media (max-width: 900px){
+    .nav-links{ display:none; }
+    .menu-toggle{ display:block; }
+    .trust-grid{ grid-template-columns: repeat(3, 1fr); }
+    .gallery-grid{ grid-template-columns: repeat(2, 1fr); }
+    .products-grid{ grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 680px){
+    .hero-photo{ inset: -4%; }
+    .trust{ padding: 76px 0 68px; }
+    .trust-grid{ grid-template-columns: 1fr; gap: 18px; }
+    .trust-statement{ margin-top: 60px; }
+    .gallery{ padding: 84px 0 76px; }
+    .gallery-grid{ grid-template-columns: 1fr; gap: 20px; }
+    .gallery-head{ margin-bottom: 48px; }
+    .products{ padding: 84px 0 76px; }
+    .products-grid{ grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .products-head{ margin-bottom: 48px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .hero-photo, .hero-content{ transform:none !important; }
+  }
+
+  /* media queries novas, exclusivas do bloco Instagram */
+  @media (max-width: 900px){
+    .instagram-grid{ grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 680px){
+    .instagram{ padding: 84px 0 76px; }
+    .instagram-grid{ grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .instagram-head{ margin-bottom: 48px; }
+  }
+
+  /* media queries novas, exclusivas do Footer */
+  @media (max-width: 900px){
+    .footer-grid{ grid-template-columns: 1fr 1fr; row-gap: 48px; }
+  }
+  @media (max-width: 680px){
+    .site-footer{ padding: 76px 0 0; }
+    .footer-grid{ grid-template-columns: 1fr; text-align:center; gap: 44px; }
+    .footer-brand p{ margin-left:auto; margin-right:auto; }
+    .footer-social{ justify-content:center; }
+    .footer-nav{ align-items:center; }
+    .footer-contact li{ justify-content:center; text-align:left; }
+    .footer-bottom{ justify-content:center; text-align:center; }
+  }
+
+  /* =========================================================================
+     ETAPA DE ACABAMENTO — novas seções (100% aditivo)
+     Como Funciona, Depoimentos, FAQ e botão flutuante do WhatsApp.
+     Nenhuma linha das seções anteriores foi tocada; os valores de cor,
+     fonte e espaçamento abaixo replicam o mesmo padrão já usado no
+     restante do site (mesma técnica de duplicação controlada já usada
+     entre Galeria/Produtos/Instagram/Footer).
+     ========================================================================= */
+
+  /* -------- COMO FUNCIONA -------- */
+  .how{
+    background: linear-gradient(180deg, #100f0d 0%, #0b0a09 100%);
+    border-top: 1px solid rgba(200,162,74,0.14);
+    padding: 112px 0 100px;
+  }
+  .how-head{ max-width: 620px; margin: 0 auto 68px; text-align:center; }
+  .how-head .eyebrow{
+    font-size: 0.76rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; display:inline-block; margin-bottom: 20px;
+  }
+  .how-head h2{
+    font-family:'Playfair Display', serif; font-weight:600; color: var(--white);
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem); line-height:1.22; margin-bottom: 20px;
+  }
+  .how-head h2 em{ font-style: italic; color: var(--gold); font-weight:500; }
+  .how-head p{
+    font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.68);
+  }
+  .how-grid{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap: 28px;
+  }
+  .how-card{
+    text-align:center; padding: 42px 26px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.015);
+    opacity: 0; transform: translateY(22px);
+    transition: opacity .8s ease, transform .8s ease, border-color .45s ease, box-shadow .45s ease;
+  }
+  .how-card.is-visible{ opacity:1; transform: translateY(0); }
+  .how-card:hover{
+    border-color: rgba(200,162,74,0.5);
+    box-shadow: 0 22px 40px rgba(0,0,0,0.35);
+  }
+  .how-number{
+    display:inline-flex; align-items:center; justify-content:center;
+    width: 56px; height: 56px; margin: 0 auto 22px;
+    border: 1px solid rgba(200,162,74,0.35); border-radius: 50%;
+    font-family:'Playfair Display', serif; font-style:italic; color: var(--gold);
+    font-size: 1.15rem;
+    transition: border-color .45s ease, transform .45s ease;
+  }
+  .how-card:hover .how-number{ border-color: var(--gold); transform: scale(1.06); }
+  .how-card h3{
+    font-family:'Montserrat', sans-serif; font-weight:600; color: var(--white);
+    font-size: 1rem; letter-spacing: 0.01em; margin-bottom: 12px;
+  }
+  .how-card p{
+    font-size: 0.86rem; line-height: 1.65; color: rgba(255,255,255,0.56);
+  }
+
+  /* -------- DEPOIMENTOS -------- */
+  .testimonials{
+    background: linear-gradient(180deg, #100f0d 0%, #0b0a09 100%);
+    border-top: 1px solid rgba(200,162,74,0.14);
+    padding: 112px 0 100px;
+  }
+  .testimonials-head{ max-width: 620px; margin: 0 auto 68px; text-align:center; }
+  .testimonials-head .eyebrow{
+    font-size: 0.76rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; display:inline-block; margin-bottom: 20px;
+  }
+  .testimonials-head h2{
+    font-family:'Playfair Display', serif; font-weight:600; color: var(--white);
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem); line-height:1.22; margin-bottom: 20px;
+  }
+  .testimonials-head h2 em{ font-style: italic; color: var(--gold); font-weight:500; }
+  .testimonials-head p{
+    font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.68);
+  }
+  .testimonials-grid{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+  }
+  .testimonial-card{
+    padding: 40px 32px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.015);
+    opacity: 0; transform: translateY(22px);
+    transition: opacity .8s ease, transform .8s ease, border-color .45s ease, box-shadow .45s ease;
+  }
+  .testimonial-card.is-visible{ opacity:1; transform: translateY(0); }
+  .testimonial-card:hover{
+    border-color: rgba(200,162,74,0.5);
+    box-shadow: 0 22px 40px rgba(0,0,0,0.35);
+  }
+  .testimonial-stars{ color: var(--gold); font-size: 0.95rem; letter-spacing: 3px; margin-bottom: 22px; }
+  .testimonial-card p{
+    font-family:'Playfair Display', serif; font-style: italic; font-weight:400;
+    color: rgba(255,255,255,0.82); font-size: 1.02rem; line-height: 1.7; margin-bottom: 26px;
+  }
+  .testimonial-author{ font-family:'Montserrat', sans-serif; font-weight:600; color: var(--white); font-size: 0.9rem; }
+  .testimonial-city{ font-size: 0.78rem; letter-spacing: 0.04em; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+  /* -------- FAQ -------- */
+  .faq-section{
+    background: linear-gradient(180deg, #100f0d 0%, #0b0a09 100%);
+    border-top: 1px solid rgba(200,162,74,0.14);
+    padding: 112px 0 100px;
+  }
+  .faq-section-head{ max-width: 620px; margin: 0 auto 60px; text-align:center; }
+  .faq-section-head .eyebrow{
+    font-size: 0.76rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; display:inline-block; margin-bottom: 20px;
+  }
+  .faq-section-head h2{
+    font-family:'Playfair Display', serif; font-weight:600; color: var(--white);
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem); line-height:1.22; margin-bottom: 20px;
+  }
+  .faq-section-head h2 em{ font-style: italic; color: var(--gold); font-weight:500; }
+  .faq-section-head p{
+    font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.68);
+  }
+  .faq-list{ max-width: 780px; margin: 0 auto; }
+  .faq-item{
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.015);
+    margin-bottom: 14px;
+    opacity: 0; transform: translateY(18px);
+    transition: opacity .7s ease, transform .7s ease, border-color .35s ease;
+  }
+  .faq-item.is-visible{ opacity:1; transform: translateY(0); }
+  .faq-item.open{ border-color: rgba(200,162,74,0.4); }
+  .faq-question{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap: 20px;
+    background:none; border:none; cursor:pointer; text-align:left;
+    padding: 24px 26px;
+    font-family:'Montserrat', sans-serif; font-weight:600; color: var(--white); font-size: 0.98rem;
+  }
+  .faq-icon{
+    flex-shrink:0; width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid rgba(200,162,74,0.4);
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    transition: transform .4s cubic-bezier(.4,0,.2,1), border-color .35s ease;
+  }
+  .faq-icon::before, .faq-icon::after{
+    content:''; position:absolute; background: var(--gold);
+    transition: transform .35s ease, opacity .35s ease;
+  }
+  .faq-icon::before{ width: 10px; height: 1px; }
+  .faq-icon::after{ width: 1px; height: 10px; }
+  .faq-item.open .faq-icon{ transform: rotate(135deg); border-color: var(--gold); }
+  .faq-answer{
+    max-height: 0; overflow:hidden;
+    transition: max-height .5s cubic-bezier(.4,0,.2,1);
+  }
+  .faq-item.open .faq-answer{ max-height: 240px; }
+  .faq-answer p{
+    padding: 0 26px 24px; font-size: 0.9rem; line-height: 1.7; color: rgba(255,255,255,0.62);
+  }
+
+  /* -------- BOTÃO FLUTUANTE DO WHATSAPP -------- */
+  .wa-float{
+    position: fixed; right: 26px; bottom: 26px; z-index: 90;
+    display:flex; align-items:center; gap: 12px;
+  }
+  .wa-tooltip{
+    background: var(--white); color: var(--black);
+    font-family:'Montserrat', sans-serif; font-weight:600; font-size: 0.82rem;
+    padding: 10px 16px; border-radius: 6px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.28);
+    opacity: 0; transform: translateX(8px);
+    transition: opacity .3s ease, transform .3s ease;
+    pointer-events:none; white-space:nowrap;
+  }
+  .wa-float:hover .wa-tooltip{ opacity:1; transform: translateX(0); }
+  .wa-button{
+    position:relative;
+    width: 60px; height: 60px; border-radius: 50%;
+    background: #25D366;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+    transition: transform .35s cubic-bezier(.4,0,.2,1), box-shadow .35s ease;
+  }
+  .wa-button:hover{ transform: translateY(-3px) scale(1.04); box-shadow: 0 16px 34px rgba(0,0,0,0.4); }
+  .wa-button svg{ width: 30px; height: 30px; fill: var(--white); }
+  .wa-pulse{
+    position:absolute; inset:0; border-radius:50%;
+    background: #25D366; opacity: 0.55;
+    animation: waPulse 2.4s ease-out infinite;
+  }
+  @keyframes waPulse{
+    0%{ transform: scale(1); opacity: 0.55; }
+    100%{ transform: scale(1.7); opacity: 0; }
+  }
+
+  /* responsividade das novas seções */
+  @media (max-width: 900px){
+    .how-grid{ grid-template-columns: repeat(2, 1fr); }
+    .testimonials-grid{ grid-template-columns: 1fr; gap: 22px; }
+  }
+  @media (max-width: 680px){
+    .how{ padding: 84px 0 76px; }
+    .how-grid{ grid-template-columns: 1fr; gap: 18px; }
+    .how-head{ margin-bottom: 48px; }
+    .testimonials{ padding: 84px 0 76px; }
+    .testimonials-head{ margin-bottom: 48px; }
+    .faq-section{ padding: 84px 0 76px; }
+    .faq-section-head{ margin-bottom: 40px; }
+    .faq-question{ padding: 20px 20px; font-size: 0.92rem; }
+    .wa-float{ right: 18px; bottom: 18px; }
+    .wa-button{ width: 54px; height: 54px; }
+    .wa-button svg{ width: 26px; height: 26px; }
+    .wa-tooltip{ display:none; } /* no mobile o tooltip por hover não se aplica; o botão já é autoexplicativo */
+  }
+
+  /* =========================================================================
+     NOVA SEÇÃO — "Clientes que confiam na VRB" (avaliações do Google)
+     Posicionada entre Como Funciona e Instagram. Bloco 100% aditivo — segue
+     o mesmo padrão visual e a mesma técnica de reveal já usados no site
+     (mesmos valores de fundo/cabeçalho já replicados nas seções anteriores).
+     ========================================================================= */
+  .google-reviews{
+    background: linear-gradient(180deg, #100f0d 0%, #0b0a09 100%);
+    border-top: 1px solid rgba(200,162,74,0.14);
+    padding: 112px 0 100px;
+  }
+  .google-reviews-head{ max-width: 620px; margin: 0 auto 52px; text-align:center; }
+  .google-reviews-head .eyebrow{
+    font-size: 0.76rem; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; display:inline-block; margin-bottom: 20px;
+  }
+  .google-reviews-head h2{
+    font-family:'Playfair Display', serif; font-weight:600; color: var(--white);
+    font-size: clamp(1.9rem, 3.4vw, 2.7rem); line-height:1.22; margin-bottom: 20px;
+  }
+  .google-reviews-head h2 em{ font-style: italic; color: var(--gold); font-weight:500; }
+  .google-reviews-head p{
+    font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.68);
+  }
+
+  /* selo/resumo com nota média, estrelas e contagem de avaliações */
+  .google-summary{
+    display:flex; align-items:center; justify-content:center; gap: 22px; flex-wrap:wrap;
+    margin: 0 auto 64px; padding: 26px 34px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.015);
+    max-width: 620px;
+    opacity: 0; transform: translateY(18px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .google-summary.is-visible{ opacity:1; transform: translateY(0); }
+  .google-badge-icon{
+    width: 48px; height: 48px; border-radius: 50%; flex-shrink:0;
+    border: 1px solid rgba(200,162,74,0.4);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Montserrat', sans-serif; font-weight:700; font-size: 1.2rem; color: var(--gold);
+  }
+  .google-summary-text{ text-align:left; }
+  .google-score-row{ display:flex; align-items:baseline; gap: 10px; }
+  .google-score{
+    font-family:'Playfair Display', serif; font-weight:600; color: var(--white); font-size: 1.7rem;
+  }
+  .google-stars{ color: var(--gold); font-size: 0.95rem; letter-spacing: 2px; }
+  .google-count{
+    font-size: 0.82rem; color: rgba(255,255,255,0.58); margin-top: 4px;
+  }
+
+  .google-grid{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+  }
+  .google-card{
+    padding: 36px 30px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.015);
+    opacity: 0; transform: translateY(22px);
+    transition: opacity .8s ease, transform .8s ease, border-color .45s ease, box-shadow .45s ease;
+  }
+  .google-card.is-visible{ opacity:1; transform: translateY(0); }
+  .google-card:hover{
+    border-color: rgba(200,162,74,0.5);
+    box-shadow: 0 22px 40px rgba(0,0,0,0.35);
+  }
+  .google-card-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 18px; }
+  .google-card .google-stars{ font-size: 0.88rem; }
+  .google-card-mark{
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 1px solid rgba(200,162,74,0.35);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Montserrat', sans-serif; font-weight:700; font-size: 0.72rem; color: var(--gold);
+  }
+  .google-card p{
+    font-size: 0.9rem; line-height: 1.7; color: rgba(255,255,255,0.68); margin-bottom: 22px;
+  }
+  .google-card-author{ font-family:'Montserrat', sans-serif; font-weight:600; color: var(--white); font-size: 0.88rem; }
+  .google-card-meta{ font-size: 0.76rem; letter-spacing: 0.03em; color: rgba(255,255,255,0.48); margin-top: 3px; }
+
+  .google-cta{ text-align:center; margin-top: 56px; }
+
+  @media (max-width: 900px){
+    .google-grid{ grid-template-columns: 1fr; gap: 20px; }
+  }
+  @media (max-width: 680px){
+    .google-reviews{ padding: 84px 0 76px; }
+    .google-reviews-head{ margin-bottom: 44px; }
+    .google-summary{ flex-direction:column; text-align:center; padding: 26px 24px; }
+    .google-summary-text{ text-align:center; }
+    .google-score-row{ justify-content:center; }
+  }
+
+  /* =========================================================================
+     REFINAMENTO PREMIUM FINAL — bloco 100% aditivo
+     Nenhuma linha das seções anteriores (Hero, Navbar, Trust Bar, Galeria,
+     Produtos, Instagram, Footer) foi editada, removida ou renomeada.
+     Tudo abaixo soma-se ao que já existe: refina a curva de easing dos
+     reveals e hovers já existentes (só a função de tempo — durações,
+     cores, espaçamentos e tipografia permanecem exatamente os mesmos),
+     adiciona sombras mais suaves, microinterações discretas e ajustes
+     de aparência de rolagem/performance.
+     ========================================================= */
+
+  /* curva de easing mais natural nos reveals já existentes (mesma duração, mesmos valores de opacidade/transform) */
+  .trust-card, .gallery-card, .product-card, .instagram-card, .footer-col{
+    transition-timing-function: cubic-bezier(.16,.84,.44,1);
+  }
+
+  /* sombras um pouco mais suaves e difusas no hover dos cards (mesmo tom neutro já usado, só refina blur/espalhamento) */
+  .gallery-card:hover, .gallery-card:focus-visible,
+  .product-card:hover, .product-card:focus-visible{
+    box-shadow: 0 30px 58px -14px rgba(0,0,0,0.46), 0 10px 22px rgba(0,0,0,0.22);
+  }
+  .trust-card:hover{
+    box-shadow: 0 28px 52px -12px rgba(0,0,0,0.4), 0 8px 18px rgba(0,0,0,0.2);
+  }
+  .instagram-card:hover, .instagram-card:focus-visible{
+    box-shadow: 0 20px 38px -10px rgba(0,0,0,0.4);
+  }
+
+  /* leve elevação adicional nos cards ao passar o mouse — discreta, complementa o zoom da imagem já existente */
+  .gallery-card:hover, .gallery-card:focus-visible,
+  .product-card:hover, .product-card:focus-visible{
+    transform: translateY(-4px);
+  }
+  .instagram-card:hover, .instagram-card:focus-visible{
+    transform: translateY(-3px);
+  }
+
+  /* suavidade extra nos botões — mesma cor, mesmo padding, só a curva de tempo e uma sombra discreta a mais */
+  .btn{ transition-timing-function: cubic-bezier(.22,1,.36,1); }
+  .btn:hover{ box-shadow: 0 14px 30px -8px rgba(0,0,0,0.32); }
+  .btn:active{ box-shadow: 0 6px 14px rgba(0,0,0,0.22); }
+
+  /* microinteração extra nos ícones já existentes — só refina a curva de tempo */
+  .trust-icon, .footer-social a, .footer-nav a{
+    transition-timing-function: cubic-bezier(.22,1,.36,1);
+  }
+
+  /* animação muito leve e contínua no logo — brilho quase imperceptível, respeitando prefers-reduced-motion já tratado globalmente */
+  @keyframes logoGlow{
+    0%, 100%{ text-shadow: 0 0 0 rgba(200,162,74,0); }
+    50%{ text-shadow: 0 0 10px rgba(200,162,74,0.32); }
+  }
+  .logo span{ animation: logoGlow 7s ease-in-out infinite; }
+  .logo span{ transition: opacity .5s ease; }
+  .logo:hover span{ opacity: 0.85; }
+
+  /* rolagem: destino das âncoras nunca fica escondido atrás da navbar fixa */
+  section[id], footer[id]{ scroll-margin-top: 88px; }
+
+  /* barra de rolagem discreta, no mesmo tom da paleta (apenas aparência, não afeta layout) */
+  ::-webkit-scrollbar{ width: 10px; }
+  ::-webkit-scrollbar-track{ background: var(--black); }
+  ::-webkit-scrollbar-thumb{ background: rgba(200,162,74,0.35); border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover{ background: rgba(200,162,74,0.55); }
+  html{ scrollbar-color: rgba(200,162,74,0.35) var(--black); scrollbar-width: thin; }
+
+  /* performance: promove a camada de composição só durante o hover/zoom da imagem, sem custo fora da interação */
+  .gallery-card:hover .gallery-img, .gallery-card:focus-visible .gallery-img,
+  .product-card:hover .product-img, .product-card:focus-visible .product-img,
+  .instagram-card:hover .instagram-img, .instagram-card:focus-visible .instagram-img{
+    will-change: transform;
+  }
+
+  /* acabamento fino: sem "flash" cinza ao tocar em links/botões no mobile; leve otimização de legibilidade tipográfica */
+  a, button{ -webkit-tap-highlight-color: transparent; }
+  body{ text-rendering: optimizeLegibility; }
+
+  @media (prefers-reduced-motion: reduce){
+    .logo span{ animation: none !important; }
+  }
