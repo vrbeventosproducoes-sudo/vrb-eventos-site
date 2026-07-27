@@ -231,3 +231,60 @@ const nav = document.getElementById('nav');
     }
     // loadInstagramFeed();
   */
+
+/* ============================================================
+   MODAL — Solicitar Orçamento
+   ============================================================ */
+(function () {
+  const overlay = document.getElementById('orcOverlay');
+  if (!overlay) return;
+
+  const modal = overlay.querySelector('.orc-modal');
+  const closeBtn = document.getElementById('orcClose');
+  const form = document.getElementById('orcForm');
+  const triggers = document.querySelectorAll('[data-orcamento="1"]');
+
+  function openModal(e) {
+    if (e) e.preventDefault();
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  triggers.forEach((el) => el.addEventListener('click', openModal));
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal();
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const nome = form.nome.value.trim();
+    const email = form.email.value.trim();
+    const whatsapp = form.whatsapp.value.trim();
+    const detalhes = form.detalhes.value.trim();
+
+    const subject = 'Solicitação de orçamento — ' + nome;
+    const body =
+      'Nome: ' + nome + '\n' +
+      'E-mail: ' + email + '\n' +
+      'WhatsApp: ' + whatsapp + '\n\n' +
+      'Detalhes do evento:\n' + detalhes;
+
+    const mailto =
+      'mailto:vrbeventosproducoes@gmail.com' +
+      '?subject=' + encodeURIComponent(subject) +
+      '&body=' + encodeURIComponent(body);
+
+    window.location.href = mailto;
+  });
+})();
