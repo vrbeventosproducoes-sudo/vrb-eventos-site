@@ -979,3 +979,84 @@
   @media (prefers-reduced-motion: reduce){
     .logo span{ animation: none !important; }
   }
+
+/* ============================================================
+   MODAL — Solicitar Orçamento
+   ============================================================ */
+.orc-overlay{
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  background: rgba(8,7,6,0.72);
+  backdrop-filter: blur(4px);
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+.orc-overlay.is-open{ opacity: 1; visibility: visible; }
+
+.orc-modal{
+  position: relative;
+  width: 100%; max-width: 560px;
+  max-height: 88vh; overflow-y: auto;
+  background: linear-gradient(180deg, #17150f 0%, #0e0d0b 100%);
+  border: 1px solid rgba(200,162,74,0.28);
+  border-radius: 4px;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.5);
+  padding: clamp(28px, 4vw, 44px);
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.28s ease;
+}
+.orc-overlay.is-open .orc-modal{ transform: translateY(0) scale(1); }
+
+.orc-close{
+  position: absolute; top: 14px; right: 16px;
+  background: none; border: none; color: var(--white);
+  font-size: 1.8rem; line-height: 1; cursor: pointer; opacity: 0.6;
+}
+.orc-close:hover{ opacity: 1; color: var(--gold); }
+
+.orc-header{
+  border-bottom: 1px solid rgba(200,162,74,0.22);
+  padding-bottom: 18px; margin-bottom: 18px;
+}
+.orc-logo{ font-size: 1.3rem; margin-bottom: 10px; display:inline-block; }
+.orc-header-info{
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: 0.78rem; color: rgba(245,240,230,0.6); letter-spacing: 0.01em;
+}
+
+.orc-intro{
+  color: rgba(245,240,230,0.72); font-size: 0.92rem; line-height: 1.55;
+  margin-bottom: 22px;
+}
+
+.orc-form{ display: flex; flex-direction: column; gap: 16px; }
+.orc-row{ display: flex; flex-direction: column; gap: 6px; }
+.orc-row label{
+  font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--gold);
+}
+.orc-row input, .orc-row textarea{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 3px;
+  color: var(--white);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.94rem;
+  padding: 12px 14px;
+  resize: vertical;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.orc-row input::placeholder, .orc-row textarea::placeholder{ color: rgba(245,240,230,0.35); }
+.orc-row input:focus, .orc-row textarea:focus{
+  outline: none; border-color: var(--gold); background: rgba(255,255,255,0.07);
+}
+
+.orc-submit{
+  margin-top: 6px; border: none; cursor: pointer;
+  width: 100%; text-align: center;
+}
+
+@media (max-width: 480px){
+  .orc-modal{ padding: 24px; }
+}
