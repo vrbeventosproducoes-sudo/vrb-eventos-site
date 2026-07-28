@@ -395,8 +395,24 @@
   }
 
   .instagram-grid{
-    display:grid; grid-template-columns: repeat(6, 1fr); gap: 14px;
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    align-items: start;
   }
+
+  /* embeds reais do Instagram (blockquote oficial) — moldura discreta no tom do site */
+  .instagram-embed{
+    background: #131110;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    min-height: 340px;
+    opacity: 0; transform: translateY(26px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .instagram-embed.is-visible{ opacity:1; transform: translateY(0); }
+  .instagram-embed iframe{ border-radius: 8px; }
 
   .instagram-card{
     position: relative; display:block;
@@ -568,11 +584,11 @@
 
   /* media queries novas, exclusivas do bloco Instagram */
   @media (max-width: 900px){
-    .instagram-grid{ grid-template-columns: repeat(3, 1fr); }
+    .instagram-grid{ grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 680px){
     .instagram{ padding: 84px 0 76px; }
-    .instagram-grid{ grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .instagram-grid{ grid-template-columns: 1fr; gap: 20px; }
     .instagram-head{ margin-bottom: 48px; }
   }
 
