@@ -90,7 +90,7 @@ const nav = document.getElementById('nav');
   productCards.forEach(card => productsObserver.observe(card));
 
   // reveal em cascata dos cards do Instagram — mesmo padrão (fade + translateY, mesmo delay e easing)
-  const instagramCards = document.querySelectorAll('.instagram-card');
+  const instagramCards = document.querySelectorAll('.instagram-embed');
   instagramCards.forEach((card, i) => { card.style.transitionDelay = reduceMotion ? '0ms' : (i * 90) + 'ms'; });
 
   const instagramObserver = new IntersectionObserver((entries) => {
